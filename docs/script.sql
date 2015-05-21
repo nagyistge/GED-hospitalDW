@@ -12,7 +12,7 @@ BEGIN -- Cleaning up for new tables
 	DROP TABLE [dbo].[POddzial]
 	DROP TABLE [dbo].[PPozycja]
 	DROP TABLE [dbo].[PCzas]
-	DROP CONSTRAINT [Relationship9]
+	
 END
 
 BEGIN -- Creating dimension tables
@@ -115,7 +115,7 @@ END
 
 GO
 
-BEGIN -- Creating 
+BEGIN -- Adding relations
 	ALTER TABLE [dbo].[PPlacowe_brutto]  WITH CHECK ADD  CONSTRAINT [Relationship9] FOREIGN KEY([Oddzial_Id])
 REFERENCES [dbo].[POddzial] ([Id])
 
@@ -142,8 +142,9 @@ REFERENCES [dbo].[PCzas] ([Id])
 
 
 GO
-ALTER TABLE [dbo].[PKadrowe]  WITH CHECK ADD  CONSTRAINT [Relationship2] FOREIGN KEY([Oddzial_Id])
+ALTER TABLE [dbo].[PKadrowe]  WITH CHECK ADD  CONSTRAINT [Relationship2] FOREIGN KEY([Pozycja_Id])
 REFERENCES [dbo].[PPozycja] ([Id])
 GO
-ALTER TABLE [dbo].[PKadrowe]  WITH CHECK ADD  CONSTRAINT [Relationship1] FOREIGN KEY([Pozycja_Id])
+ALTER TABLE [dbo].[PKadrowe]  WITH CHECK ADD  CONSTRAINT [Relationship1] FOREIGN KEY([Pracownicy_Id])
 REFERENCES [dbo].[PPracownicy] ([Id])
+
