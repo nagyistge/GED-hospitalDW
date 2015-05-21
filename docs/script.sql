@@ -1,14 +1,22 @@
-DROP DATABASE HOSPITALDW
-GO
+BEGIN -- Setting up for new database
+	DROP DATABASE HOSPITALDW
+	CREATE DATABASE HOSPITALDW
+	USE HOSPITALDW
+END
 
-CREATE DATABASE HOSPITALDW
-GO
+BEGIN -- Cleaning up for new tables
+	DROP TABLE [dbo].[PKadrowe] 
+	DROP TABLE [dbo].[PPlacowe_zasad]
+	DROP TABLE [dbo].[PPlacowe_brutto]
+	DROP TABLE [dbo].[PPracownicy]
+	DROP TABLE [dbo].[POddzial]
+	DROP TABLE [dbo].[PPozycja]
+	DROP TABLE [dbo].[PCzas]
+	DROP CONSTRAINT [Relationship9]
+END
 
-USE HOSPITALDW
-GO
-
---
-CREATE TABLE [dbo].[Czas](
+BEGIN -- Creating dimension tables
+	CREATE TABLE [dbo].[PCzas](
 	[Id] [int] NOT NULL,
 	[Miesiac] [int] NULL,
 	[Kwartal] [int] NULL,
@@ -19,7 +27,7 @@ CREATE TABLE [dbo].[Czas](
 )WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
  
- CREATE TABLE [dbo].[Pozycja](
+	CREATE TABLE [dbo].[PPozycja](
 	[Id] [int] NOT NULL,
 	[Grupa_zawodowa] [varchar] NULL,
 	[Stanowisko] [varchar] NULL,
@@ -29,7 +37,7 @@ CREATE TABLE [dbo].[Czas](
 )WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 
-CREATE TABLE [dbo].[Oddzial](
+	CREATE TABLE [dbo].[POddzial](
 	[Id] [int] NOT NULL,
 	[Oddzial] [varchar] NOT NULL,
  CONSTRAINT [Key8] PRIMARY KEY CLUSTERED 
@@ -38,7 +46,7 @@ CREATE TABLE [dbo].[Oddzial](
 )WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 
-CREATE TABLE [dbo].[Pracownicy](
+	CREATE TABLE [dbo].[PPracownicy](
 	[Id] [int] NOT NULL,
 	[Oddzial] [varchar] NULL,
 	[Wyksztalcenie] [varchar] NULL,
@@ -49,11 +57,12 @@ CREATE TABLE [dbo].[Pracownicy](
 	[Id] ASC
 )WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
+END
 
 
---Tabele faktów
+BEGIN -- Creating fact tables
 
-CREATE TABLE [dbo].[Placowe_brutto](
+	CREATE TABLE [dbo].[PPlacowe_brutto](
 	[Placa_avg] [float] NULL,
 	[Placa_max] [float] NULL,
 	[Placa_min] [float] NULL,
@@ -74,7 +83,7 @@ CREATE TABLE [dbo].[Placowe_brutto](
 ) WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 
-CREATE TABLE [dbo].[Placowe_zasad](
+	CREATE TABLE [dbo].[PPlacowe_zasad](
 	[Placa_avg] [float] NULL,
 	[Placa_max] [float] NULL,
 	[Placa_min] [float] NULL,
@@ -90,7 +99,7 @@ CREATE TABLE [dbo].[Placowe_zasad](
 )WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 
-CREATE TABLE [dbo].[Kadrowe](
+	CREATE TABLE [dbo].[PKadrowe](
 	[Ilosc] [int] NULL,
 	[Procent] [int] NULL,
 	[Pozycja_Id] [int] NOT NULL,
@@ -101,38 +110,40 @@ CREATE TABLE [dbo].[Kadrowe](
 	[Pracownicy_Id] ASC
 )WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
-
-
--- relacje
-GO
-
-ALTER TABLE [dbo].[Placowe_brutto]  WITH CHECK ADD  CONSTRAINT [Relationship9] FOREIGN KEY([Oddzial_Id])
-REFERENCES [dbo].[Oddzial] ([Id])
-GO
-ALTER TABLE [dbo].[Placowe_brutto]  WITH CHECK ADD  CONSTRAINT [Relationship8] FOREIGN KEY([Pozycja_Id])
-REFERENCES [dbo].[Pozycja] ([Id])
-GO
-ALTER TABLE [dbo].[Placowe_brutto]  WITH CHECK ADD  CONSTRAINT [Relationship7] FOREIGN KEY([Czas_Id])
-REFERENCES [dbo].[Czas] ([Id])
-GO
-ALTER TABLE [dbo].[Placowe_brutto]  WITH CHECK ADD  CONSTRAINT [Relationship6] FOREIGN KEY([Pracownicy_Id])
-REFERENCES [dbo].[Pracownicy] ([Id])
+END
 
 
 GO
-ALTER TABLE [dbo].[Placowe_zasad]  WITH CHECK ADD  CONSTRAINT [Relationship5] FOREIGN KEY([Oddzial_Id])
-REFERENCES [dbo].[Oddzial] ([Id])
+
+BEGIN -- Creating 
+	ALTER TABLE [dbo].[PPlacowe_brutto]  WITH CHECK ADD  CONSTRAINT [Relationship9] FOREIGN KEY([Oddzial_Id])
+REFERENCES [dbo].[POddzial] ([Id])
+
+	ALTER TABLE [dbo].[PPlacowe_brutto]  WITH CHECK ADD  CONSTRAINT [Relationship8] FOREIGN KEY([Pozycja_Id])
+REFERENCES [dbo].[PPozycja] ([Id])
+
+	ALTER TABLE [dbo].[PPlacowe_brutto]  WITH CHECK ADD  CONSTRAINT [Relationship7] FOREIGN KEY([Czas_Id])
+REFERENCES [dbo].[PCzas] ([Id])
+
+	ALTER TABLE [dbo].[PPlacowe_brutto]  WITH CHECK ADD  CONSTRAINT [Relationship6] FOREIGN KEY([Pracownicy_Id])
+REFERENCES [dbo].[PPracownicy] ([Id])
+
+END
+
 GO
-ALTER TABLE [dbo].[Placowe_zasad]  WITH CHECK ADD  CONSTRAINT [Relationship4] FOREIGN KEY([Pozycja_Id])
-REFERENCES [dbo].[Pozcja] ([Id])
+ALTER TABLE [dbo].[PPlacowe_zasad]  WITH CHECK ADD  CONSTRAINT [Relationship5] FOREIGN KEY([Oddzial_Id])
+REFERENCES [dbo].[POddzial] ([Id])
 GO
-ALTER TABLE [dbo].[Placowe_zasad]  WITH CHECK ADD  CONSTRAINT [Relationship3] FOREIGN KEY([Czas_Id])
-REFERENCES [dbo].[Czas] ([Id])
+ALTER TABLE [dbo].[PPlacowe_zasad]  WITH CHECK ADD  CONSTRAINT [Relationship4] FOREIGN KEY([Pozycja_Id])
+REFERENCES [dbo].[PPozycja] ([Id])
+GO
+ALTER TABLE [dbo].[PPlacowe_zasad]  WITH CHECK ADD  CONSTRAINT [Relationship3] FOREIGN KEY([Czas_Id])
+REFERENCES [dbo].[PCzas] ([Id])
 
 
 GO
-ALTER TABLE [dbo].[Kadrowe]  WITH CHECK ADD  CONSTRAINT [Relationship2] FOREIGN KEY([Oddzial_Id])
-REFERENCES [dbo].[Pozycje] ([Id])
+ALTER TABLE [dbo].[PKadrowe]  WITH CHECK ADD  CONSTRAINT [Relationship2] FOREIGN KEY([Oddzial_Id])
+REFERENCES [dbo].[PPozycja] ([Id])
 GO
-ALTER TABLE [dbo].[Kadrowe]  WITH CHECK ADD  CONSTRAINT [Relationship1] FOREIGN KEY([Pozycja_Id])
-REFERENCES [dbo].[Pracownicy] ([Id])
+ALTER TABLE [dbo].[PKadrowe]  WITH CHECK ADD  CONSTRAINT [Relationship1] FOREIGN KEY([Pozycja_Id])
+REFERENCES [dbo].[PPracownicy] ([Id])
